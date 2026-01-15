@@ -1,0 +1,130 @@
+{
+  "__type__": "cc.Material",
+  "_name": "",
+  "_objFlags": 0,
+  "__editorExtras__": {},
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "9b20a514-6cc3-49de-b216-b6b863046249",
+    "__expectedType__": "cc.EffectAsset"
+  },
+  "_techIdx": 0,
+  "_defines": [
+    {},
+    {
+      "USE_BASE_COLOR_MAP": true,
+      "USE_SPECULAR_MAP": true,
+      "SHADE_MAP_1_AS_SHADE_MAP_2": true,
+      "BASE_COLOR_MAP_AS_SHADE_MAP_1": true,
+      "BASE_COLOR_MAP_AS_SHADE_MAP_2": true
+    },
+    {},
+    {},
+    {},
+    {},
+    {}
+  ],
+  "_states": [
+    {
+      "rasterizerState": {},
+      "depthStencilState": {},
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      }
+    },
+    {
+      "rasterizerState": {},
+      "depthStencilState": {},
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      }
+    },
+    {
+      "rasterizerState": {},
+      "depthStencilState": {},
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      }
+    },
+    {
+      "rasterizerState": {},
+      "depthStencilState": {},
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      }
+    },
+    {
+      "rasterizerState": {},
+      "depthStencilState": {},
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      }
+    },
+    {
+      "rasterizerState": {},
+      "depthStencilState": {},
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      }
+    },
+    {
+      "rasterizerState": {},
+      "depthStencilState": {},
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      }
+    }
+  ],
+  "_props": [
+    {
+      "baseColorMap": {
+        "__uuid__": "1eafc40f-9512-4abb-acda-b69c4a32f4d8@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      }
+    },
+    {
+      "specular": {
+        "__type__": "cc.Color",
+        "r": 88,
+        "g": 88,
+        "b": 88,
+        "a": 166
+      },
+      "mainTexture": {
+        "__uuid__": "1eafc40f-9512-4abb-acda-b69c4a32f4d8@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      "shadeMap1": {
+        "__uuid__": "1eafc40f-9512-4abb-acda-b69c4a32f4d8@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      "shadeMap2": {
+        "__uuid__": "1eafc40f-9512-4abb-acda-b69c4a32f4d8@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      "specularMap": {
+        "__uuid__": "1eafc40f-9512-4abb-acda-b69c4a32f4d8@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      }
+    },
+    {},
+    {},
+    {},
+    {},
+    {}
+  ]
+}
