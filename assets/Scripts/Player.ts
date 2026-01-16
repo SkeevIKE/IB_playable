@@ -1,28 +1,33 @@
-import { _decorator, Animation, CapsuleCollider, Component, ICollisionEvent, physics, RigidBody, Vec2 } from 'cc';
+import { _decorator, CapsuleCollider, Component, ICollisionEvent, isValid, physics, RigidBody, Vec2 } from 'cc';
 import { CharacterAnimation } from './CharacterAnimation';
-import { isInteractable } from './Interfaces/IInteractable';
+import { IDamageable, isDamageable } from './Interfaces/IDamageable';
+import { Loadout } from './Loadout';
 import { Movement } from './Movement';
+import { WeaponTier } from './Weapon';
 
 
 const { ccclass, property } = _decorator;
 
 @ccclass('Player')
 export class Player extends Component {
+    @property(RigidBody)
+    private rigidBody: RigidBody | null = null;
+    @property(CharacterAnimation)
+    private characterAnimation: CharacterAnimation = null;
+    @property(Loadout)
+    public loadout: Loadout | null = null;
     @property
     private speed: number = 10.0;
     @property
     private rotationSpeed: number = 10.0;
-    @property(RigidBody)
-    private rigidBody: RigidBody = null;
-    @property(Animation)
-    private animation: Animation = null;
 
     private movement: Movement = null;
     private capsuleCollider: CapsuleCollider = null;
-    private characterAnimation: CharacterAnimation = null;
+    private target: (Component & IDamageable) | null = null;
 
     private lastOffset: Vec2 = null;
     private isMoving: boolean = false;
+    private isAttacking: boolean = false;
 
     protected start(): void {
         this.capsuleCollider = this.getComponent(CapsuleCollider);
@@ -33,12 +38,8 @@ export class Player extends Component {
             console.error('No CapsuleCollider found on Player');
         }
 
-        if (!this.animation) {
-            console.error('No animation assigned to Player');
-        }
-
         this.movement = new Movement(this.rigidBody, this.speed, this.rotationSpeed);
-        this.characterAnimation = new CharacterAnimation(this.animation);
+        this.setWeapon(WeaponTier.Basic);
     }
 
     protected onDestroy(): void {
@@ -46,15 +47,20 @@ export class Player extends Component {
             this.capsuleCollider.off('onTriggerEnter', this.onTriggerEnter, this);
             this.capsuleCollider.off('onTriggerExit', this.onTriggerExit, this);
         }
+
+        this.unschedule(this.attackTarget);
     }
 
-    protected update(): void {
-        if (!this.isMoving) {
+    protected update(dt: number): void {
+        if (this.isMoving) {
+            this.movement.moveForward(this.lastOffset);
+            this.movement.rotate(this.lastOffset);
             return;
         }
 
-        this.movement.moveForward(this.lastOffset);
-        this.movement.rotate(this.lastOffset);
+        if (this.isAttacking && this.isTargetValid()) {
+            this.movement.rotateTowards(this.target.node.worldPosition, dt);
+        }
     }
 
     public move(touchOffset: Vec2, cameraAngle: number = 0): void {
@@ -65,13 +71,23 @@ export class Player extends Component {
         this.lastOffset.set(touchOffset);
         this.movement.setCameraAngle(cameraAngle);
         this.isMoving = true;
+        this.stopAttacking();
         this.characterAnimation.startMoving(touchOffset.length());
     }
 
     public stopMoving(): void {
+        if (!this.lastOffset) {
+            this.lastOffset = new Vec2();
+        }
+
         this.lastOffset.set(0, 0);
         this.isMoving = false;
         this.characterAnimation.stopMoving();
+        this.startAttacking();
+    }
+
+    public setWeapon(weaponTier: WeaponTier): void {
+        this.loadout?.equipWeapon(weaponTier);
     }
 
     private onTriggerEnter(event: ICollisionEvent): void {
@@ -79,9 +95,13 @@ export class Player extends Component {
         if (!otherCollider)
             return;
 
-        const interactables = otherCollider.node.getComponents(Component).filter(isInteractable);
-        for (const interactable of interactables) {
-            interactable.onPlayerEnter(this);
+        const damageables = otherCollider.node.getComponents(Component).filter(isDamageable);
+        for (const damageable of damageables) {
+            this.target = damageable;
+        }
+
+        if (!this.isMoving) {
+            this.startAttacking();
         }
     }
 
@@ -90,11 +110,48 @@ export class Player extends Component {
         if (!otherCollider)
             return;
 
-        const interactables = otherCollider.node.getComponents(Component).filter(isInteractable);
+        const interactables = otherCollider.node.getComponents(Component).filter(isDamageable);
         for (const interactable of interactables) {
-            interactable.onPlayerExit(this);
+            if (interactable === this.target) {
+                this.target = null;
+                this.stopAttacking();
+            }
         }
     }
+
+    private startAttacking(): void {
+        if (!this.isTargetValid() || this.isAttacking) {
+            return;
+        }
+
+        this.characterAnimation.startAttack();
+        this.characterAnimation.on(this.characterAnimation.ATTACK_ANIMATION_EVENT, this.attackTarget);
+        this.isAttacking = true;
+    }
+
+    private stopAttacking(): void {
+        if (!this.isAttacking) {
+            return;
+        }
+
+        this.characterAnimation.off(this.characterAnimation.ATTACK_ANIMATION_EVENT, this.attackTarget);
+        this.characterAnimation.stopMoving();
+        this.isAttacking = false;
+    }
+
+    private attackTarget = (): void => {
+        if (this.isTargetValid() && this.loadout) {
+            this.loadout.attack(this.target);
+            if (!this.isTargetValid()) {
+                this.stopAttacking();
+            }
+        } else {
+            this.target = null;
+            this.stopAttacking();
+        }
+    }
+
+    private isTargetValid(): boolean {
+        return this.target !== null && isValid(this.target) && isValid(this.target.node) && this.target.isActive();
+    }
 }
-
-

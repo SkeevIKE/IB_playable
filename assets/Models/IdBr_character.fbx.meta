@@ -41,7 +41,24 @@
           "from": 0,
           "to": 2.4166667461395264
         },
-        "events": []
+        "events": [
+          {
+            "frame": 0.9333333333333333,
+            "func": "",
+            "params": []
+          },
+          {
+            "frame": 0.9333333333333333,
+            "func": "attackEvent",
+            "params": []
+          }
+        ],
+        "speed": 1,
+        "embeddedPlayers": [],
+        "editorExtras": {
+          "embeddedPlayerGroups": []
+        },
+        "auxiliaryCurves": {}
       },
       "ver": "1.0.17",
       "imported": true,
@@ -162,7 +179,8 @@
             "from": 0,
             "to": 2.4166667461395264,
             "wrapMode": 2,
-            "previousId": "953bc"
+            "previousId": "953bc",
+            "speed": 1
           }
         ]
       },

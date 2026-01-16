@@ -1,9 +1,10 @@
-import { Quat, RigidBody, Vec2 } from 'cc';
+import { Quat, RigidBody, Vec2, Vec3 } from 'cc';
 
 export class Movement {
     private readonly OFFSET_MULTIPLIER = 0.01;
     private readonly MIN_SPEED = 0.1;
     private readonly MAX_SPEED = 1.0;
+    private readonly TARGET_ROTATION_SPEED = 10.0;
 
     private rigidBody: RigidBody = null;
     private speed: number = 10.0;
@@ -43,6 +44,25 @@ export class Movement {
 
         const currentRotation = this.rigidBody.node.rotation;
         Quat.slerp(currentRotation, currentRotation, rotation, this.rotationSpeed);
+        this.rigidBody.node.rotation = currentRotation;
+    }
+
+    public rotateTowards(targetPosition: Vec3, dt: number): void {
+        const myPosition = this.rigidBody.node.worldPosition;
+
+        const direction = new Vec3();
+        Vec3.subtract(direction, targetPosition, myPosition);
+        direction.y = 0;
+
+        if (direction.length() < 0.01)
+            return;
+       
+        const targetAngle = Math.atan2(direction.x, direction.z) * 180 / Math.PI + 180;
+        const targetRotation = new Quat();
+        Quat.fromEuler(targetRotation, 0, targetAngle, 0);
+
+        const currentRotation = this.rigidBody.node.rotation.clone();
+        Quat.slerp(currentRotation, currentRotation, targetRotation, this.TARGET_ROTATION_SPEED * dt);
         this.rigidBody.node.rotation = currentRotation;
     }
 }
