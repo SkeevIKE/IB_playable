@@ -1,16 +1,22 @@
-import { Component } from 'cc';
+import { Component, Vec3 } from 'cc';
+import { WeaponTier } from '../Level/Weapon';
 
 export interface IDamageable {
     /**
      * Applies damage to the object
      * @param value The amount of damage to apply
      */
-    damage(value: number): void;
+    damage(value: number, weaponTier: WeaponTier): void;
 
     /**
      * Optional property to indicate if the object is currently active
      */
     isActive(): boolean;
+
+    /**
+     * Optional method to get the position of the object
+     */
+    getPosition(): Vec3;
 }
 
 /**

@@ -6,16 +6,12 @@ const { ccclass, property } = _decorator;
 export class Follower extends Component {
     @property(Node)
     private targetFollow: Node;
-
     @property
     private speedFollow: number = 5.0;
-
     @property
     private freezX: boolean = false;
-
     @property
     private freezY: boolean = false;
-
     @property
     private freezZ: boolean = false;
 
