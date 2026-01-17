@@ -45,6 +45,7 @@ export class GameScreen extends ScreenBase {
     private animateLabelCount(label: Label, target: number, bumpNode: Node): void {
         const current = parseInt(label.string || '0') || 0;
         const state = { v: current };
+        this.bumpIcon(bumpNode);
         tween(state)
             .to(0.25, { v: target }, {
                 onUpdate: () => {
@@ -52,7 +53,6 @@ export class GameScreen extends ScreenBase {
                 },
                 easing: 'sineOut'
             })
-            .call(() => this.bumpIcon(bumpNode))
             .start();
     }
 }

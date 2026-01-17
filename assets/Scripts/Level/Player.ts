@@ -1,8 +1,10 @@
 import { _decorator, Component, CylinderCollider, ICollisionEvent, physics, RigidBody, Vec2 } from 'cc';
+import { isUIElement } from '../Interfaces/IUIElement';
 import { CharacterAnimation } from './CharacterAnimation';
+import { CraftBench } from './CraftBench';
 import { Loadout } from './Loadout';
 import { Movement } from './Movement';
-import { TargetManager } from './TargetManager';
+import { Targets } from './TargetManager';
 import { WeaponTier } from './Weapon';
 
 
@@ -21,16 +23,16 @@ export class Player extends Component {
     @property
     private speed: number = 10.0;
     @property
-    private rotationSpeed: number = 10.0;  
+    private rotationSpeed: number = 10.0;
 
     private movement: Movement = null;
-    private targetManager: TargetManager = null;
+    private targets: Targets = null;
 
     private lastOffset: Vec2 = null;
     private isMoving: boolean = false;
     private isAttacking: boolean = false;
 
-    protected start(): void {        
+    protected start(): void {
         if (this.triggerCollider) {
             this.triggerCollider.on('onTriggerEnter', this.onTriggerEnter, this);
             this.triggerCollider.on('onTriggerExit', this.onTriggerExit, this);
@@ -39,7 +41,7 @@ export class Player extends Component {
         }
 
         this.movement = new Movement(this.rigidBody, this.speed, this.rotationSpeed);
-        this.targetManager = new TargetManager();
+        this.targets = new Targets();
         this.setWeapon(WeaponTier.Basic);
     }
 
@@ -94,16 +96,22 @@ export class Player extends Component {
         this.loadout?.equipWeapon(weaponTier);
     }
 
-    private onTriggerEnter(event: ICollisionEvent): void {       
+    private onTriggerEnter(event: ICollisionEvent): void {
         const otherCollider = event.otherCollider as physics.Collider;
         if (!otherCollider)
             return;
 
-        this.targetManager.addFromNode(otherCollider.node);
-
-        if (!this.isMoving) {
-            this.startAttacking();
+        const craftBench = otherCollider.node.getComponent(CraftBench);
+        if (craftBench && isUIElement(craftBench)) {
+            craftBench.showUI();
+            return;
         }
+
+        this.targets.addFromNode(otherCollider.node);
+
+        // if (!this.isMoving) {
+        //     this.startAttacking();
+        // }
     }
 
     private onTriggerExit(event: ICollisionEvent): void {
@@ -111,10 +119,16 @@ export class Player extends Component {
         if (!otherCollider)
             return;
 
-        this.targetManager.removeFromNode(otherCollider.node);
-        if (!this.targetManager.hasValidTargets()) {
-            this.stopAttacking();
+        const craftBench = otherCollider.node.getComponent(CraftBench);
+        if (craftBench && isUIElement(craftBench)) {
+            craftBench.hideUI();
+            return;
         }
+
+        this.targets.removeFromNode(otherCollider.node);
+        // if (!this.targets.hasValidTargets()) {
+        //     this.stopAttacking();
+        // }
     }
 
     private startAttacking(): void {
@@ -157,11 +171,11 @@ export class Player extends Component {
     }
 
     private isTargetValid(): boolean {
-        return this.targetManager?.hasValidTargets() ?? false;
+        return this.targets?.hasValidTargets() ?? false;
     }
 
     private getTargetsInRange() {
         const radius = this.triggerCollider ? this.triggerCollider.radius : 0;
-        return this.targetManager.getTargetsInFrontArc(this.node.worldPosition, this.node.forward, radius);
+        return this.targets.getTargetsInFrontArc(this.node.worldPosition, this.node.forward, radius);
     }
 }

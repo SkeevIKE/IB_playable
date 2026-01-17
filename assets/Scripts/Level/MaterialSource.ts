@@ -1,6 +1,8 @@
-import { _decorator, Color, Component, MeshRenderer, Node, tween, Vec3 } from 'cc';
+import { _decorator, Color, Component, MeshRenderer, Node, tween, UIOpacity, Vec3 } from 'cc';
 import { ServiceAllocator } from '../Helpers/ServiceAllocator';
+import { UIAnimationHelper } from '../Helpers/UIAnimationHelper';
 import { IDamageable } from '../Interfaces/IDamageable';
+import { IUIElement } from '../Interfaces/IUIElement';
 import { IconResourcePool } from '../Pools/IconResourcePool';
 import { DamageText } from '../UI/DamageText';
 import { Lifebar } from '../UI/Lifebar';
@@ -8,13 +10,15 @@ import { WeaponTier } from './Weapon';
 const { ccclass, property } = _decorator;
 
 @ccclass('MaterialSource')
-export class MaterialSource extends Component implements IDamageable {
+export class MaterialSource extends Component implements IDamageable, IUIElement {
     @property(Node)
     private transformGroup: Node = null;
     @property(Lifebar)
     private lifebar: Lifebar = null;
     @property(DamageText)
-    private damageText: DamageText = null;   
+    private damageText: DamageText = null;
+    @property(UIOpacity)
+    private uiOpacity: UIOpacity = null;
     @property({ type: WeaponTier })
     private tierRequired: WeaponTier = WeaponTier.Basic;
     @property(MeshRenderer)
@@ -39,6 +43,8 @@ export class MaterialSource extends Component implements IDamageable {
     private rotationAngleZMin: number = 10;
     @property
     private rotationAngleZMax: number = 20;
+    @property
+    private fadeDuration: number = 0.15;
 
     private currentDurability: number = 3;
     private currentIndex: number = 0;
@@ -51,6 +57,40 @@ export class MaterialSource extends Component implements IDamageable {
 
     public getPosition(): Vec3 {
         return this.node.getWorldPosition();
+    }
+
+    public showUI(): void {
+        UIAnimationHelper.showUI(this.uiOpacity, this.fadeDuration);
+    }
+
+    public hideUI(): void {
+        UIAnimationHelper.hideUI(this.uiOpacity, this.fadeDuration);
+    }
+
+    public damage(value: number, weaponTier: WeaponTier = WeaponTier.Basic): void {
+        const oldIndex = this.calculateSegmentIndex();
+
+        if (oldIndex < this.materialRenders.length) {
+            this.playPulseAnimation(oldIndex);
+        }
+
+        if (weaponTier !== this.tierRequired) {
+            return;
+        }
+
+        this.currentDurability -= value;
+        if (this.currentDurability < 0) {
+            this.currentDurability = 0;
+        }
+        this.updateLifebar();
+
+        if (this.currentDurability <= 0) {
+            const segmentHealth = Math.ceil(this.durability / this.materialRenders.length);
+            this.spawnResourceIcon(segmentHealth);
+
+            this.isDestoryed = true;
+            this.remove();
+        }
     }
 
     protected start(): void {
@@ -66,6 +106,10 @@ export class MaterialSource extends Component implements IDamageable {
         }
 
         this.lifebar.initialization(this.durability, this.durability);
+        if (this.uiOpacity) {
+            this.uiOpacity.opacity = 0;
+            this.uiOpacity.node.setScale(Vec3.ZERO);
+        }
     }
 
     private getCurrentHealth(): number {
@@ -118,37 +162,11 @@ export class MaterialSource extends Component implements IDamageable {
         });
     }
 
-    public damage(value: number, weaponTier: WeaponTier = WeaponTier.Basic): void {
-        const oldIndex = this.calculateSegmentIndex();
-        
-        if (oldIndex < this.materialRenders.length) {
-            this.playPulseAnimation(oldIndex);
-        }
-
-        if (weaponTier !== this.tierRequired) {
-            return;
-        }
-
-        this.currentDurability -= value;
-        if (this.currentDurability < 0) {
-            this.currentDurability = 0;
-        }
-        this.updateLifebar();
-
-        if (this.currentDurability <= 0) {
-            const segmentHealth = Math.ceil(this.durability / this.materialRenders.length);
-            this.spawnResourceIcon(segmentHealth);
-            
-            this.isDestoryed = true;
-            this.remove();
-        }
-    }
-
     private playPulseAnimation(index: number): void {
         const renderer = this.materialRenders[index];
         if (!renderer || !renderer.node)
             return;
-       
+
         const animNode = this.transformGroup ? this.transformGroup : this.node;
         const material = renderer.getMaterialInstance(0);
         if (!material)
@@ -231,11 +249,11 @@ export class MaterialSource extends Component implements IDamageable {
 
     private checkAndSwitchSegment(): void {
         const newIndex = this.calculateSegmentIndex();
-        
+
         if (newIndex !== this.currentIndex) {
             const segmentHealth = Math.ceil(this.durability / this.materialRenders.length);
             this.spawnResourceIcon(segmentHealth);
-            
+
             this.currentIndex = newIndex;
             this.setSegment(this.currentIndex);
         }
@@ -271,6 +289,6 @@ export class MaterialSource extends Component implements IDamageable {
     }
 
     private remove(): void {
-        this.node.destroy();      
+        this.node.destroy();
     }
 }

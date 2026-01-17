@@ -3,8 +3,9 @@ import { WeaponTier } from '../Level/Weapon';
 
 export interface IDamageable {
     /**
-     * Applies damage to the object
-     * @param value The amount of damage to apply
+     * Method to apply damage to the object
+     * @param value - The amount of damage to apply
+     * @param weaponTier - The tier of the weapon causing the damage
      */
     damage(value: number, weaponTier: WeaponTier): void;
 

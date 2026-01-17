@@ -1,23 +1,26 @@
 import { Component, isValid, Node, Vec3 } from 'cc';
 import { IDamageable, isDamageable } from '../Interfaces/IDamageable';
+import { IUIElement } from '../Interfaces/IUIElement';
 
-export class TargetManager {
+export class Targets {
     private targets: Array<Component & IDamageable> = [];
 
     public addFromNode(node: Node): void {
-        const damageables = node.getComponents(Component).filter(isDamageable) as Array<Component & IDamageable>;
-        for (const dmg of damageables) {
-            if (this.targets.indexOf(dmg) === -1) {
-                this.targets.push(dmg);
+        const damageables = node.getComponents(Component).filter(isDamageable) as Array<Component & IDamageable & IUIElement>;
+        for (const damageable of damageables) {
+            if (this.targets.indexOf(damageable) === -1) {
+                damageable.showUI();
+                this.targets.push(damageable);
             }
         }
         this.clearInvalid();
     }
 
     public removeFromNode(node: Node): void {
-        const damageables = node.getComponents(Component).filter(isDamageable) as Array<Component & IDamageable>;
-        for (const dmg of damageables) {
-            this.removeTarget(dmg);
+        const damageables = node.getComponents(Component).filter(isDamageable) as Array<Component & IDamageable & IUIElement>;
+        for (const damageable of damageables) {
+            damageable.hideUI();
+            this.removeTarget(damageable);
         }
         this.clearInvalid();
     }
@@ -76,4 +79,4 @@ export class TargetManager {
     }
 }
 
-export default TargetManager;
+export default Targets;

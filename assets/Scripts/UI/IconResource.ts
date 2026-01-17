@@ -20,6 +20,8 @@ export class IconResource extends Component {
 	@property
 	private floorY: number = 0;
 	@property
+	private targetRecalcStep: number = 0.1;
+	@property
 	private spillRadius: number = 1.2;
 	@property
 	private spillUpHeight: number = 1.2;
@@ -28,7 +30,7 @@ export class IconResource extends Component {
 
     public set setReturnFunction(func: Function) {
         this.returneFunction = func;
-    }	
+    }
 
 	public show(count: number, start: Vec3, tier: WeaponTier): void {       
         this.node.active = true;
@@ -37,12 +39,18 @@ export class IconResource extends Component {
 
         const mainCamera = ServiceAllocator.get(Cameras)?.getMainCamera;
         const uiCamera = ServiceAllocator.get(Cameras)?.getUICamera;
-		const targetUi = this.getTargetByTier(tier);
 		const screenPos = new Vec3();
-		uiCamera.worldToScreen(targetUi, screenPos);
-		const ray = mainCamera.screenPointToRay(screenPos.x, screenPos.y);
 		const targetWorld = new Vec3();
-		Vec3.scaleAndAdd(targetWorld, ray.o, ray.d, this.distanceFromCamera);
+		let lastRecalc = 0;
+
+		const recalcTarget = () => {
+			const targetUi = this.getTargetByTier(tier);
+			uiCamera.worldToScreen(targetUi, screenPos);
+			const ray = mainCamera.screenPointToRay(screenPos.x, screenPos.y);
+			Vec3.scaleAndAdd(targetWorld, ray.o, ray.d, this.distanceFromCamera);
+		};
+
+		recalcTarget();
 
 		const angle = Math.random() * Math.PI * 2;
 		const radius = Math.random() * this.spillRadius;
@@ -53,7 +61,6 @@ export class IconResource extends Component {
 
 		const t1 = { t: 0 };
 		const t2 = { t: 0 };
-
 		tween(this.node).to(0.15, { scale: new Vec3(1, 1, 1) }).start();
 
 		tween(t1)
@@ -68,6 +75,10 @@ export class IconResource extends Component {
 					.delay(this.flyDelay)
 					.to(0.5, { t: 1 }, {
 						onUpdate: () => {
+							if (t2.t - lastRecalc >= this.targetRecalcStep) {
+								recalcTarget();
+								lastRecalc = t2.t;
+							}
 							const p = new Vec3();
 							Vec3.lerp(p, impact, targetWorld, t2.t);
 							this.node.setWorldPosition(p);

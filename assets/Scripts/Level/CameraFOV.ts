@@ -1,11 +1,12 @@
-import { _decorator, Camera, Component } from 'cc';
-import { TweenAnimation } from '../Helpers/TweenAnimation';
+import { _decorator, Camera, Component, tween } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('CameraFOV')
 export class CameraFOV extends Component {
     @property(Camera)
-    private camera: Camera = null;
+    private mainCamera: Camera = null;
+    @property(Camera)
+    private uiMainCamera: Camera = null;
     @property
     private initialFOV: number = 45;
     @property
@@ -16,44 +17,52 @@ export class CameraFOV extends Component {
     private currentFOV: number = 0;   
 
     protected start(): void {
-        if (this.camera) {
-            this.currentFOV = this.camera.fov;
+        if (this.mainCamera) {
+            this.currentFOV = this.mainCamera.fov;
             this.initialFOV = this.currentFOV;
         } else {
             console.error('Camera component not assigned to CameraFOVManager!');
         }
+
+        if (!this.uiMainCamera) {
+            console.error('Secondary camera component not assigned to CameraFOVManager!');
+        }
     }
 
     public zoomOut(): void {
-        if (!this.camera)
+        if (!this.mainCamera)
             return;
-        
-        TweenAnimation.numberTo(
-            this.camera,
-            'fov',
-            this.zoomedOutFOV,
-            this.animationDuration,
-            'sineOut'
-        );
+
+        tween(this.mainCamera)
+            .to(this.animationDuration, { fov: this.zoomedOutFOV }, { easing: 'sineOut' })
+            .start();
+
+        if (this.uiMainCamera) {
+            tween(this.uiMainCamera)
+                .to(this.animationDuration, { fov: this.zoomedOutFOV }, { easing: 'sineOut' })
+                .start();
+        }
     }
 
     public resetZoom(): void {
-        if (!this.camera)
+        if (!this.mainCamera)
             return;
 
-        TweenAnimation.numberTo(
-            this.camera,
-            'fov',
-            this.initialFOV,
-            this.animationDuration,
-            'sineOut'
-        );
+        tween(this.mainCamera)
+            .to(this.animationDuration, { fov: this.initialFOV }, { easing: 'sineOut' })
+            .start();
+
+        if (this.uiMainCamera) {
+            tween(this.uiMainCamera)
+                .to(this.animationDuration, { fov: this.initialFOV }, { easing: 'sineOut' })
+                .start();
+        }
     }
 
     public getCameraAngle(): number {
-        if (!this.camera)
+        if (!this.mainCamera)
             return 0;
         
-        return this.camera.node.eulerAngles.y;
+        return this.mainCamera.node.eulerAngles.y;
     }
 }
