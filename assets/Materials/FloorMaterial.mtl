@@ -14,7 +14,11 @@
       "USE_INSTANCING": true
     },
     {
-      "USE_INSTANCING": true
+      "USE_INSTANCING": true,
+      "USE_BASE_COLOR_MAP": true,
+      "USE_1ST_SHADE_MAP": true,
+      "SHADE_MAP_1_AS_SHADE_MAP_2": true,
+      "BASE_COLOR_MAP_AS_SHADE_MAP_2": true
     },
     {},
     {},
@@ -89,7 +93,51 @@
   ],
   "_props": [
     {},
-    {},
+    {
+      "tilingOffset": {
+        "__type__": "cc.Vec4",
+        "x": 10,
+        "y": 15,
+        "z": 0,
+        "w": 0
+      },
+      "mainColor": {
+        "__type__": "cc.Color",
+        "r": 255,
+        "g": 255,
+        "b": 255,
+        "a": 255
+      },
+      "shadeColor1": {
+        "__type__": "cc.Color",
+        "r": 188,
+        "g": 230,
+        "b": 182,
+        "a": 255
+      },
+      "shadeColor2": {
+        "__type__": "cc.Color",
+        "r": 182,
+        "g": 178,
+        "b": 178,
+        "a": 255
+      },
+      "specular": {
+        "__type__": "cc.Color",
+        "r": 255,
+        "g": 255,
+        "b": 255,
+        "a": 0
+      },
+      "mainTexture": {
+        "__uuid__": "2c6ffa74-333b-46eb-9def-bafd946b4e7e@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      "shadeMap1": {
+        "__uuid__": "2c6ffa74-333b-46eb-9def-bafd946b4e7e@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      }
+    },
     {},
     {},
     {},

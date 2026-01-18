@@ -1,4 +1,5 @@
-import { _decorator, Component, CylinderCollider, ICollisionEvent, physics, RigidBody, Vec2 } from 'cc';
+import { _decorator, Component, CylinderCollider, ICollisionEvent, RigidBody, Vec2 } from 'cc';
+import { ParticleWrapper } from '../Helpers/ParticleWrapper';
 import { isUIElement } from '../Interfaces/IUIElement';
 import { CharacterAnimation } from './CharacterAnimation';
 import { CraftBench } from './CraftBench';
@@ -6,7 +7,6 @@ import { Loadout } from './Loadout';
 import { Movement } from './Movement';
 import { Targets } from './TargetManager';
 import { WeaponTier } from './Weapon';
-
 
 const { ccclass, property } = _decorator;
 
@@ -20,6 +20,8 @@ export class Player extends Component {
     public loadout: Loadout | null = null;
     @property(CylinderCollider)
     private triggerCollider: CylinderCollider = null;
+    @property(ParticleWrapper)
+    private upgradeEffect: ParticleWrapper = null;
     @property
     private speed: number = 10.0;
     @property
@@ -27,8 +29,8 @@ export class Player extends Component {
 
     private movement: Movement = null;
     private targets: Targets = null;
-
     private lastOffset: Vec2 = null;
+    private attackRadiusMultiplier: number = 1.2;
     private isMoving: boolean = false;
     private isAttacking: boolean = false;
 
@@ -78,7 +80,7 @@ export class Player extends Component {
         this.movement.setCameraAngle(cameraAngle);
         this.isMoving = true;
         this.stopAttacking();
-        this.characterAnimation.startMoving(touchOffset.length());
+        this.characterAnimation.startMoving(touchOffset.length());       
     }
 
     public stopMoving(): void {
@@ -93,11 +95,12 @@ export class Player extends Component {
     }
 
     public setWeapon(weaponTier: WeaponTier): void {
-        this.loadout?.equipWeapon(weaponTier);
+        this.loadout?.equipWeapon(weaponTier);  
+        this.upgradeEffect.show();   
     }
 
     private onTriggerEnter(event: ICollisionEvent): void {
-        const otherCollider = event.otherCollider as physics.Collider;
+        const otherCollider = event.otherCollider;
         if (!otherCollider)
             return;
 
@@ -108,14 +111,10 @@ export class Player extends Component {
         }
 
         this.targets.addFromNode(otherCollider.node);
-
-        // if (!this.isMoving) {
-        //     this.startAttacking();
-        // }
     }
 
     private onTriggerExit(event: ICollisionEvent): void {
-        const otherCollider = event.otherCollider as physics.Collider;
+        const otherCollider = event.otherCollider;
         if (!otherCollider)
             return;
 
@@ -126,9 +125,6 @@ export class Player extends Component {
         }
 
         this.targets.removeFromNode(otherCollider.node);
-        // if (!this.targets.hasValidTargets()) {
-        //     this.stopAttacking();
-        // }
     }
 
     private startAttacking(): void {
@@ -175,7 +171,7 @@ export class Player extends Component {
     }
 
     private getTargetsInRange() {
-        const radius = this.triggerCollider ? this.triggerCollider.radius : 0;
+        const radius = this.triggerCollider ? this.triggerCollider.radius * this.attackRadiusMultiplier : 0;
         return this.targets.getTargetsInFrontArc(this.node.worldPosition, this.node.forward, radius);
     }
 }

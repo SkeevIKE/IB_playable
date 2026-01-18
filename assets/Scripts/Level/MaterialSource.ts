@@ -1,4 +1,5 @@
-import { _decorator, Color, Component, MeshRenderer, Node, tween, UIOpacity, Vec3 } from 'cc';
+import { _decorator, Color, Component, Eventify, MeshRenderer, Node, tween, UIOpacity, Vec3 } from 'cc';
+import { Audio } from '../Audio/Audio';
 import { ServiceAllocator } from '../Helpers/ServiceAllocator';
 import { UIAnimationHelper } from '../Helpers/UIAnimationHelper';
 import { IDamageable } from '../Interfaces/IDamageable';
@@ -6,11 +7,14 @@ import { IUIElement } from '../Interfaces/IUIElement';
 import { IconResourcePool } from '../Pools/IconResourcePool';
 import { DamageText } from '../UI/DamageText';
 import { Lifebar } from '../UI/Lifebar';
+import { Tutorials } from './Tutorials';
 import { WeaponTier } from './Weapon';
 const { ccclass, property } = _decorator;
 
 @ccclass('MaterialSource')
-export class MaterialSource extends Component implements IDamageable, IUIElement {
+export class MaterialSource extends Eventify(Component) implements IDamageable, IUIElement {
+    public readonly MATERIAL_SOURCE_DESTROYED = 'material-source-destroyed';
+
     @property(Node)
     private transformGroup: Node = null;
     @property(Lifebar)
@@ -48,7 +52,7 @@ export class MaterialSource extends Component implements IDamageable, IUIElement
 
     private currentDurability: number = 3;
     private currentIndex: number = 0;
-    private originalColors: Map<number, { base: Color, shade1: Color, shade2: Color }> = new Map();
+    private originalColors: Map<number, { base: Color, shade1: Color, shade2: Color, specular: Color }> = new Map();
     private isDestoryed: boolean = false;
 
     public isActive(): boolean {
@@ -72,9 +76,11 @@ export class MaterialSource extends Component implements IDamageable, IUIElement
 
         if (oldIndex < this.materialRenders.length) {
             this.playPulseAnimation(oldIndex);
+            Audio.instance.playSoundOneShot(`punch`);
         }
 
-        if (weaponTier !== this.tierRequired) {
+        if (weaponTier < this.tierRequired) {
+            ServiceAllocator.get(Tutorials)?.showWrongToolInfo(this.getPosition());
             return;
         }
 
@@ -85,8 +91,11 @@ export class MaterialSource extends Component implements IDamageable, IUIElement
         this.updateLifebar();
 
         if (this.currentDurability <= 0) {
+            const newIndex = this.calculateSegmentIndex();
             const segmentHealth = Math.ceil(this.durability / this.materialRenders.length);
-            this.spawnResourceIcon(segmentHealth);
+            const segmentsSkipped = Math.max(0, newIndex - oldIndex);
+            const totalResourcesSpawned = (segmentsSkipped + 1) * segmentHealth;
+            this.spawnResourceIcon(totalResourcesSpawned);
 
             this.isDestoryed = true;
             this.remove();
@@ -158,7 +167,13 @@ export class MaterialSource extends Component implements IDamageable, IUIElement
             const shade2 = Array.isArray(shade2Arr) && shade2Arr.length >= 4
                 ? new Color(toSRGB(shade2Arr[0]), toSRGB(shade2Arr[1]), toSRGB(shade2Arr[2]), Math.round(shade2Arr[3] * 255))
                 : new Color(51, 51, 51, 255);
-            this.originalColors.set(index, { base: baseColor, shade1, shade2 });
+
+            const currentSpecular = material.getProperty('specular', 0) as Color;
+            const specular = currentSpecular
+                ? new Color(currentSpecular.r, currentSpecular.g, currentSpecular.b, currentSpecular.a)
+                : new Color(63, 63, 63, 183);
+
+            this.originalColors.set(index, { base: baseColor, shade1, shade2, specular });
         });
     }
 
@@ -188,13 +203,16 @@ export class MaterialSource extends Component implements IDamageable, IUIElement
         const originalBaseColor = cachedColors.base;
         const originalShade1 = cachedColors.shade1;
         const originalShade2 = cachedColors.shade2;
+        const originalSpecular = cachedColors.specular;
         const whiteBase = new Color(255, 255, 255, originalBaseColor.a);
-        const whiteShade1 = new Color(230, 230, 230, originalShade1.a);
-        const whiteShade2 = new Color(200, 200, 200, originalShade2.a);
+        const whiteShade1 = new Color(255, 255, 255, originalShade1.a);
+        const whiteShade2 = new Color(255, 255, 255, originalShade2.a);
+        const whiteSpecular = new Color(255, 255, 255, 220);
         const colorState = {
             base: originalBaseColor.clone(),
             shade1: originalShade1.clone(),
-            shade2: originalShade2.clone()
+            shade2: originalShade2.clone(),
+            specular: originalSpecular.clone()
         };
 
         const scaleState = { factor: 0 };
@@ -205,6 +223,7 @@ export class MaterialSource extends Component implements IDamageable, IUIElement
             material.setProperty('mainColor', new Color(colorState.base.r, colorState.base.g, colorState.base.b, colorState.base.a));
             material.setProperty('shadeColor1', new Color(colorState.shade1.r, colorState.shade1.g, colorState.shade1.b, colorState.shade1.a));
             material.setProperty('shadeColor2', new Color(colorState.shade2.r, colorState.shade2.g, colorState.shade2.b, colorState.shade2.a));
+            material.setProperty('specular', new Color(colorState.specular.r, colorState.specular.g, colorState.specular.b, colorState.specular.a));
         };
 
         const applyScale = () => {
@@ -240,9 +259,9 @@ export class MaterialSource extends Component implements IDamageable, IUIElement
                     .to(this.animationDuration / 2, { angleX: randomRotationX, angleZ: randomRotationZ }, { onUpdate: applyRotation, easing: 'backOut' })
                     .to(this.animationDuration / 2, { angleX: 0, angleZ: 0 }, { onUpdate: applyRotation, easing: 'backIn' }),
                 tween(colorState)
-                    .to(this.animationDuration / 2, { base: whiteBase, shade1: whiteShade1, shade2: whiteShade2 }, { onUpdate: applyColors, easing: 'sineOut' })
+                    .to(this.animationDuration / 2, { base: whiteBase, shade1: whiteShade1, shade2: whiteShade2, specular: whiteSpecular }, { onUpdate: applyColors, easing: 'sineOut' })
                     .call(() => this.checkAndSwitchSegment())
-                    .to(this.animationDuration / 2, { base: originalBaseColor, shade1: originalShade1, shade2: originalShade2 }, { onUpdate: applyColors, easing: 'sineIn' })
+                    .to(this.animationDuration / 2, { base: originalBaseColor, shade1: originalShade1, shade2: originalShade2, specular: originalSpecular }, { onUpdate: applyColors, easing: 'sineIn' })
             )
             .start();
     }
@@ -252,7 +271,9 @@ export class MaterialSource extends Component implements IDamageable, IUIElement
 
         if (newIndex !== this.currentIndex) {
             const segmentHealth = Math.ceil(this.durability / this.materialRenders.length);
-            this.spawnResourceIcon(segmentHealth);
+            const segmentsSkipped = Math.max(0, newIndex - this.currentIndex);
+            const totalResourcesSpawned = segmentsSkipped * segmentHealth;
+            this.spawnResourceIcon(totalResourcesSpawned);
 
             this.currentIndex = newIndex;
             this.setSegment(this.currentIndex);
@@ -263,6 +284,12 @@ export class MaterialSource extends Component implements IDamageable, IUIElement
         this.damageText.show(`${amount}`);
         const iconResource = ServiceAllocator.get(IconResourcePool)?.get();
         iconResource.show(amount, this.getPosition(), this.tierRequired);
+        this.playDestroySound();
+    }
+
+    private playDestroySound(): void {
+        const soundName = this.tierRequired === WeaponTier.Basic ? 'woodDestroy' : 'ironDestory';
+        Audio.instance.playSoundOneShot(soundName);
     }
 
     private calculateSegmentIndex(): number {
@@ -289,6 +316,7 @@ export class MaterialSource extends Component implements IDamageable, IUIElement
     }
 
     private remove(): void {
+        this.emit(this.MATERIAL_SOURCE_DESTROYED, this);
         this.node.destroy();
     }
 }

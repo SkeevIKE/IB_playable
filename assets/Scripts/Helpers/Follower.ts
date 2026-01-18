@@ -9,6 +9,8 @@ export class Follower extends Component {
     @property
     private speedFollow: number = 5.0;
     @property
+    private offsetTransitionSpeed: number = 5.0;
+    @property
     private freezX: boolean = false;
     @property
     private freezY: boolean = false;
@@ -16,17 +18,23 @@ export class Follower extends Component {
     private freezZ: boolean = false;
 
     private startOffset: Vec3 = new Vec3();
-    private isInit: boolean = false;  
+    private currentOffset: Vec3 = new Vec3();
+    private targetOffset: Vec3 = new Vec3();
+    private isInit: boolean = false;
 
     private readonly targetPosition = new Vec3();
     private readonly newPosition = new Vec3();
     private readonly localTargetPos = new Vec3();
     private readonly localCurrentPos = new Vec3();
     private readonly tempMat4 = new Mat4();
-    private readonly inverseMat4 = new Mat4();   
+    private readonly inverseMat4 = new Mat4();
 
     public setSpeed(speed: number): void {
         this.speedFollow = speed;
+    }
+
+    public setOffsetTransitionSpeed(speed: number): void {
+        this.offsetTransitionSpeed = speed;
     }
 
     public setFreezeAxes(freezX: boolean, freezY: boolean, freezZ: boolean): void {
@@ -35,13 +43,20 @@ export class Follower extends Component {
         this.freezZ = freezZ;
     }
 
-    public setTarget(target: Node, isOffset: boolean = false): void {
-        this.targetFollow = target;       
+    public initializeOffset(): void {
+        if (this.targetFollow) {
+            Vec3.subtract(this.startOffset, this.targetFollow.worldPosition, this.node.worldPosition);    
+            this.targetOffset = this.startOffset.clone();        
+        }
+    }
 
-        if (isOffset) {
-            Vec3.subtract(this.startOffset, target.worldPosition, this.node.worldPosition);
+    public setTarget(target: Node, isStartOffset: boolean = false): void {
+        this.targetFollow = target;
+
+        if (isStartOffset) {
+            this.targetOffset = this.startOffset.clone();
         } else {
-            this.startOffset = Vec3.ZERO;
+            this.targetOffset = Vec3.ZERO.clone();
         }
 
         this.isInit = true;
@@ -67,6 +82,9 @@ export class Follower extends Component {
         if (!this.targetFollow)
             return;
 
+        // Плавный переход смещения между целями
+        Vec3.lerp(this.currentOffset, this.currentOffset, this.targetOffset, this.offsetTransitionSpeed * deltaTime);
+
         const constrainedTargetPosition = this.calculateConstrainedTargetPosition();
 
         Vec3.lerp(this.newPosition, this.node.worldPosition, constrainedTargetPosition, this.speedFollow * deltaTime);
@@ -74,7 +92,7 @@ export class Follower extends Component {
     }
 
     private calculateConstrainedTargetPosition(): Vec3 {
-        Vec3.subtract(this.targetPosition, this.targetFollow.worldPosition, this.startOffset);
+        Vec3.subtract(this.targetPosition, this.targetFollow.worldPosition, this.currentOffset);
 
         if (!this.freezX && !this.freezY && !this.freezZ) {
             return this.targetPosition;
@@ -97,7 +115,7 @@ export class Follower extends Component {
         if (this.freezZ) {
             this.localTargetPos.z = this.localCurrentPos.z;
         }
-       
+
         Vec3.transformMat4(this.targetPosition, this.localTargetPos, this.tempMat4);
         return this.targetPosition;
     }

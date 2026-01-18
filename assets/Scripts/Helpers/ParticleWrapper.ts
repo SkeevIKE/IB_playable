@@ -23,7 +23,7 @@ export class ParticleWrapper extends Component {
         this.rootNode.active = false;
     }
 
-    public show(position: Vec3 | null): void {
+    public show(position: Vec3 | null = null): void {
         if (position !== null) {
             this.rootNode.setWorldPosition(position);
         }

@@ -1,4 +1,5 @@
 import { _decorator, Component, Enum } from 'cc';
+import { Audio } from '../Audio/Audio';
 import { ServiceAllocator } from '../Helpers/ServiceAllocator';
 import { IDamageable } from '../Interfaces/IDamageable';
 import { HitsPool } from '../Pools/HitsPool';
@@ -27,6 +28,7 @@ export class Weapon extends Component {
         const position = target.getPosition();
         position.y += 1.5;
         particle.show(position);
+        Audio.instance.playSoundOneShot('attack');
     }    
 }
 

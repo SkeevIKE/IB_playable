@@ -6,7 +6,7 @@ export class Targets {
     private targets: Array<Component & IDamageable> = [];
 
     public addFromNode(node: Node): void {
-        const damageables = node.getComponents(Component).filter(isDamageable) as Array<Component & IDamageable & IUIElement>;
+        const damageables = node.parent.getComponents(Component).filter(isDamageable) as Array<Component & IDamageable & IUIElement>;
         for (const damageable of damageables) {
             if (this.targets.indexOf(damageable) === -1) {
                 damageable.showUI();
@@ -17,7 +17,7 @@ export class Targets {
     }
 
     public removeFromNode(node: Node): void {
-        const damageables = node.getComponents(Component).filter(isDamageable) as Array<Component & IDamageable & IUIElement>;
+        const damageables = node.parent.getComponents(Component).filter(isDamageable) as Array<Component & IDamageable & IUIElement>;
         for (const damageable of damageables) {
             damageable.hideUI();
             this.removeTarget(damageable);

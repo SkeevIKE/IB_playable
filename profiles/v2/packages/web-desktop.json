@@ -4,7 +4,16 @@
     "common": {
       "polyfills": {
         "asyncFunctions": true
-      }
+      },
+      "scenes": [
+        {
+          "url": "db://assets/Scenes/001_01.scene",
+          "uuid": "0f65186d-5d71-4dd3-8695-7c380c13e4f7"
+        }
+      ],
+      "name": "playble",
+      "nativeCodeBundleMode": "asmjs",
+      "useSplashScreen": false
     }
   }
 }

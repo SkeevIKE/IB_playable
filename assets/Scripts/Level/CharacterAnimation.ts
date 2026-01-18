@@ -1,4 +1,5 @@
 import { _decorator, Animation, Component, Eventify } from 'cc';
+import { Audio } from '../Audio/Audio';
 import { AnimationController } from '../Helpers/AnimationController';
 
 const { ccclass, property } = _decorator;
@@ -12,12 +13,13 @@ export enum AnimationState {
 
 @ccclass('CharacterAnimation')
 export class CharacterAnimation extends Eventify(Component) {
-    public readonly ATTACK_ANIMATION_EVENT: string = 'attackEvent';   
+    public readonly ATTACK_ANIMATION_EVENT: string = 'attackEvent';
+    public readonly STEP_ANIMATION_EVENT: string = 'stepEvent';
 
     private readonly MIN_ANIMATION_SPEED: number = 0.01;
     private readonly SPEED_MAGNITUDE_MULTIPLIER: number = 0.01;
     private readonly MAX_ANIMATION_SPEED: number = 1.0;
-    private readonly ATTACK_ANIMATION_SPEED: number = 3.0; 
+    private readonly ATTACK_ANIMATION_SPEED: number = 3.0;
     private readonly ANIMATION_TRANSITION_DURATION: number = 0.2;
 
     @property(Animation)
@@ -26,7 +28,7 @@ export class CharacterAnimation extends Eventify(Component) {
     private animationController: AnimationController;
     private currentAnimationState: AnimationState = AnimationState.NONE;
 
-    protected start() {
+    protected start() {       
         if (!this.animation) {
             console.error('No animation assigned to Player');
         }
@@ -34,11 +36,12 @@ export class CharacterAnimation extends Eventify(Component) {
         this.animationController = new AnimationController(this.animation);
     }
 
-    public startMoving(speed: number): void {
+
+    public startMoving(speed: number): void {       
         speed = Math.min(
             this.MIN_ANIMATION_SPEED + speed * this.SPEED_MAGNITUDE_MULTIPLIER,
             this.MAX_ANIMATION_SPEED
-        )
+        )       
         this.animationController.setAnimationSpeed(speed);
 
         this.changeState(AnimationState.RUN);
@@ -56,7 +59,12 @@ export class CharacterAnimation extends Eventify(Component) {
 
     // called via Animation Event
     public attackEvent(): void {
-       this.emit(this.ATTACK_ANIMATION_EVENT);
+        this.emit(this.ATTACK_ANIMATION_EVENT);
+    }
+
+    // called via Animation Event on Run animation
+    public stepEvent(): void {
+        Audio.instance.playSoundOneShot('steps');
     }
 
     private changeState(newState: AnimationState): void {
