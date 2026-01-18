@@ -129,6 +129,9 @@ export class Level extends Component {
         break;
       case WeaponTier.Elite:
         this.resources.removeEventListener(this.resources.TIER_TWO_WEAPON_UPGRADED, this.onWeaponUpgaraded);
+        this.scheduleOnce(() => {
+          this.showNextTutorial();
+        }, 1);
         break;
     }
   }
@@ -143,10 +146,12 @@ export class Level extends Component {
 
   private gameStop(): void {
     this.stopControls();
-    ServiceAllocator.unregister(Cameras);
-    ServiceAllocator.unregister(Resources);
-    ServiceAllocator.unregister(HitsPool);
-    ServiceAllocator.unregister(IconResourcePool);
-    ServiceAllocator.unregister(Tutorials);
+    this.scheduleOnce(() => {
+      ServiceAllocator.unregister(Cameras);
+      ServiceAllocator.unregister(Resources);
+      ServiceAllocator.unregister(HitsPool);
+      ServiceAllocator.unregister(IconResourcePool);
+      ServiceAllocator.unregister(Tutorials);
+    }, 3);
   }
 }

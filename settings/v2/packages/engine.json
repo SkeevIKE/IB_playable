@@ -27,7 +27,7 @@
             "_value": true
           },
           "meshopt": {
-            "_value": false
+            "_value": true
           },
           "2d": {
             "_value": true
@@ -36,19 +36,19 @@
             "_value": false
           },
           "rich-text": {
-            "_value": true
+            "_value": false
           },
           "mask": {
-            "_value": true
+            "_value": false
           },
           "graphics": {
-            "_value": true
+            "_value": false
           },
           "ui-skew": {
-            "_value": true
+            "_value": false
           },
           "affine-transform": {
-            "_value": true
+            "_value": false
           },
           "ui": {
             "_value": true
@@ -101,10 +101,10 @@
             "_value": false
           },
           "primitive": {
-            "_value": true
+            "_value": false
           },
           "profiler": {
-            "_value": true
+            "_value": false
           },
           "occlusion-query": {
             "_value": false
@@ -125,7 +125,7 @@
             "_value": false
           },
           "webview": {
-            "_value": true
+            "_value": false
           },
           "tween": {
             "_value": true
@@ -168,10 +168,10 @@
             "_value": false
           },
           "marionette": {
-            "_value": true
+            "_value": false
           },
           "procedural-animation": {
-            "_value": true
+            "_value": false
           },
           "custom-pipeline-post-process": {
             "_value": false
@@ -193,33 +193,27 @@
         "includeModules": [
           "2d",
           "3d",
-          "affine-transform",
           "animation",
           "audio",
           "base",
           "custom-pipeline",
           "gfx-webgl",
           "gfx-webgl2",
-          "graphics",
-          "marionette",
-          "mask",
+          "meshopt",
           "particle",
           "physics-ammo",
-          "primitive",
-          "procedural-animation",
-          "profiler",
-          "rich-text",
           "skeletal-animation",
           "tween",
-          "ui",
-          "ui-skew",
-          "webview"
+          "ui"
         ],
         "noDeprecatedFeatures": {
           "value": false,
           "version": ""
         }
       }
+    },
+    "graphics": {
+      "pipeline": "custom-pipeline"
     }
   }
 }

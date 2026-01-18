@@ -5,12 +5,27 @@
       "web-desktop": {
         "configID": "d27687",
         "services": []
+      },
+      "web-mobile": {
+        "configID": "d27687",
+        "services": []
       }
-    }
+    },
+    "taskOptionsMap": {
+      "1768764124168": {
+        "configID": "d27687",
+        "services": [],
+        "__version__": "3.0.9"
+      },
+      "1768767320775": {
+        "configID": "d27687",
+        "services": []
+      }
+    },
+    "__version__": "1.3.9"
   },
   "builder-options": {
     "configID": "d27687",
-    "services": [],
-    "__version__": "3.0.9"
+    "services": []
   }
 }

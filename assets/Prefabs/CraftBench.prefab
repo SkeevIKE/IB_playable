@@ -2011,7 +2011,7 @@
     "uiOpacity": {
       "__id__": 80
     },
-    "needCount": 10,
+    "needCount": 100,
     "fadeDuration": 0.15,
     "_id": ""
   },
@@ -3930,7 +3930,7 @@
     "uiOpacity": {
       "__id__": 160
     },
-    "needCount": 15,
+    "needCount": 130,
     "fadeDuration": 0.15,
     "_id": ""
   },
@@ -4191,7 +4191,7 @@
     "_layer": 1073741824,
     "_euler": {
       "__type__": "cc.Vec3",
-      "x": 90,
+      "x": 89.99999999999999,
       "y": 0,
       "z": 0
     },

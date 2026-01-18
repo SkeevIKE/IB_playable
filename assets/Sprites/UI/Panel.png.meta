@@ -134,6 +134,9 @@
     "flipGreenChannel": false,
     "compressSettings": {
       "useCompressTexture": false
+    },
+    "customCompression": {
+      "quality": 80
     }
   }
 }

@@ -2,7 +2,75 @@
   "__version__": "1.3.9",
   "log": {},
   "BuildTaskManager": {
-    "taskMap": {}
+    "taskMap": {
+      "1768767320775": {
+        "type": "build",
+        "id": "1768767320775",
+        "progress": 1,
+        "state": "success",
+        "stage": "build",
+        "message": "1-18-2026 22:11:11 build success in 14 s!",
+        "detailMessage": "// ---- build task adsense-h5g-plugin：onAfterBuild ----\r",
+        "options": {
+          "name": "playable",
+          "server": "",
+          "engineModulesConfigKey": "defaultConfig",
+          "platform": "web-mobile",
+          "buildPath": "project://build",
+          "debug": false,
+          "buildMode": "normal",
+          "mangleProperties": false,
+          "md5Cache": false,
+          "skipCompressTexture": false,
+          "sourceMaps": false,
+          "overwriteProjectSettings": {
+            "includeModules": {
+              "gfx-webgl2": "on",
+              "physics": "inherit-project-setting",
+              "physics-2d": "inherit-project-setting"
+            },
+            "macroConfig": {
+              "cleanupImageCache": "inherit-project-setting"
+            }
+          },
+          "nativeCodeBundleMode": "asmjs",
+          "polyfills": {
+            "asyncFunctions": true
+          },
+          "experimentalEraseModules": false,
+          "startSceneAssetBundle": false,
+          "bundleConfigs": [],
+          "inlineEnum": true,
+          "useBuiltinServer": false,
+          "md5CacheOptions": {
+            "excludes": [],
+            "includes": [],
+            "replaceOnly": [],
+            "handleTemplateMd5Link": true
+          },
+          "mainBundleIsRemote": false,
+          "mainBundleCompressionType": "merge_dep",
+          "useSplashScreen": false,
+          "bundleCommonChunk": false,
+          "packAutoAtlas": true,
+          "startScene": "0f65186d-5d71-4dd3-8695-7c380c13e4f7",
+          "outputName": "web-mobile",
+          "taskName": "web-mobile",
+          "scenes": [
+            {
+              "url": "db://assets/Scenes/001_01.scene",
+              "uuid": "0f65186d-5d71-4dd3-8695-7c380c13e4f7"
+            }
+          ],
+          "wasmCompressionMode": false,
+          "packages": {},
+          "__version__": "1.3.9",
+          "logDest": "project://temp/builder/log/web-mobile18-01-2026 21-15.log"
+        },
+        "time": "18-01-2026 22:10:56",
+        "dirty": false
+      }
+    }
   },
   "common": {
     "polyfills": {
@@ -14,8 +82,12 @@
         "uuid": "0f65186d-5d71-4dd3-8695-7c380c13e4f7"
       }
     ],
-    "name": "playble",
+    "name": "playable",
     "nativeCodeBundleMode": "asmjs",
-    "useSplashScreen": false
+    "useSplashScreen": false,
+    "buildPath": "project://build",
+    "outputName": "web-mobile",
+    "mainBundleCompressionType": "merge_dep",
+    "platform": "web-mobile"
   }
 }

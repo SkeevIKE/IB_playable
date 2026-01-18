@@ -12,8 +12,6 @@ export class TutorialData {
     public duration: number = 3;
     @property
     public text: string = '';
-    @property(Color)
-    public backgroundColor: Color = Color.GREEN;
     @property
     public isOffset: boolean = true;
     @property
@@ -23,6 +21,8 @@ export class TutorialData {
 @ccclass('Tutorials')
 export class Tutorials extends Eventify(Component) {
     public readonly TUTORIAL_COMPLETED = 'tutorial-completed';
+    private readonly GREEN_COLOR = new Color(40, 145, 78, 255);
+    private readonly RED_COLOR = new Color(145, 40, 40, 255);
 
     @property(Node)
     private tutorialRoot: Node = null;
@@ -91,9 +91,9 @@ export class Tutorials extends Eventify(Component) {
         this.tutorialRoot.setWorldPosition(worldPosition);
     }
 
-    private updateUIContent(tutorialData: TutorialData): void {
+    private updateUIContent(tutorialData: TutorialData): void {        
         this.tutorialLabel.string = tutorialData.text;
-        this.tutorialSprite.color = tutorialData.backgroundColor;
+        this.tutorialSprite.color = tutorialData === this.wrongToolInfoData ? this.RED_COLOR : this.GREEN_COLOR;
     }
 
     private showUIWithAnimation(): void {

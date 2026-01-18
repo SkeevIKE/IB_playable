@@ -81,12 +81,9 @@ export class Follower extends Component {
 
         if (!this.targetFollow)
             return;
-
-        // Плавный переход смещения между целями
+    
         Vec3.lerp(this.currentOffset, this.currentOffset, this.targetOffset, this.offsetTransitionSpeed * deltaTime);
-
         const constrainedTargetPosition = this.calculateConstrainedTargetPosition();
-
         Vec3.lerp(this.newPosition, this.node.worldPosition, constrainedTargetPosition, this.speedFollow * deltaTime);
         this.node.setWorldPosition(this.newPosition);
     }

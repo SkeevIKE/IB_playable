@@ -2,16 +2,16 @@
   "ver": "1.0.27",
   "importer": "image",
   "imported": true,
-  "uuid": "2c6ffa74-333b-46eb-9def-bafd946b4e7e",
+  "uuid": "552b254d-5b4b-4809-b1d8-3e4e1665a0d7",
   "files": [
-    ".jpg",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "2c6ffa74-333b-46eb-9def-bafd946b4e7e@6c48a",
-      "displayName": "Floor",
+      "uuid": "552b254d-5b4b-4809-b1d8-3e4e1665a0d7@6c48a",
+      "displayName": "T_thingLight-001",
       "id": "6c48a",
       "name": "texture",
       "userData": {
@@ -19,10 +19,10 @@
         "wrapModeT": "repeat",
         "minfilter": "linear",
         "magfilter": "linear",
-        "mipfilter": "none",
+        "mipfilter": "linear",
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "2c6ffa74-333b-46eb-9def-bafd946b4e7e",
+        "imageUuidOrDatabaseUri": "552b254d-5b4b-4809-b1d8-3e4e1665a0d7",
         "visible": false
       },
       "ver": "1.0.22",
@@ -34,12 +34,9 @@
     }
   },
   "userData": {
+    "hasAlpha": true,
     "type": "texture",
-    "hasAlpha": false,
-    "fixAlphaTransparencyArtifacts": false,
-    "redirect": "2c6ffa74-333b-46eb-9def-bafd946b4e7e@6c48a",
-    "customCompression": {
-      "quality": 100
-    }
+    "redirect": "552b254d-5b4b-4809-b1d8-3e4e1665a0d7@6c48a",
+    "fixAlphaTransparencyArtifacts": false
   }
 }
